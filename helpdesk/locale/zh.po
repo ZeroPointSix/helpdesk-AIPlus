@@ -7300,3 +7300,174 @@ msgstr "取消条件组"
 #: desk/src (manual i18n)
 msgid "Yes"
 msgstr "是"
+
+
+# AI Workbench (MVP)
+
+msgid "AI Workbench"
+msgstr "AI 工作台"
+
+msgid "AI Analysis"
+msgstr "AI 分析"
+
+msgid "No AI analysis yet. Run AI analysis to get category, priority, summary and evidence."
+msgstr "尚无 AI 分析。运行 AI 分析以获取分类、优先级、摘要和证据。"
+
+msgid "Analyzing ticket..."
+msgstr "正在分析工单…"
+
+msgid "Analysis failed. You can retry safely."
+msgstr "分析失败。可以安全重试。"
+
+msgid "Retry"
+msgstr "重试"
+
+msgid "Evidence"
+msgstr "证据"
+
+msgid "No evidence available"
+msgstr "暂无证据"
+
+msgid "Show less"
+msgstr "收起"
+
+msgid "Show more"
+msgstr "展开更多"
+
+msgid "Confidence"
+msgstr "置信度"
+
+msgid "Mapped ticket type"
+msgstr "映射工单类型"
+
+msgid "Suggested role"
+msgstr "建议角色"
+
+msgid "Suggested team"
+msgstr "建议团队"
+
+msgid "Suggested agent"
+msgstr "建议处理人"
+
+msgid "Auto-handleable"
+msgstr "可自动处理"
+
+msgid "Original AI suggestion"
+msgstr "原始 AI 建议"
+
+msgid "Suggested next steps"
+msgstr "建议后续步骤"
+
+msgid "Suitable for auto-handling"
+msgstr "适合自动处理"
+
+msgid "Suggestion / simulation only. No real password reset, refund, email, or script will be executed."
+msgstr "仅为建议/模拟。不会真实执行改密、退款、发信或脚本。"
+
+msgid "Simulate auto-handle"
+msgstr "模拟自动处理"
+
+msgid "Simulation result"
+msgstr "模拟结果"
+
+msgid "Simulated successfully"
+msgstr "模拟成功"
+
+msgid "Side effects"
+msgstr "副作用"
+
+msgid "None"
+msgstr "无"
+
+msgid "Information needed"
+msgstr "需要补充信息"
+
+msgid "Hand off to human agent"
+msgstr "转交人工处理"
+
+msgid "Missing information"
+msgstr "缺失信息"
+
+msgid "Re-analyze after the customer replies with more details. Confirming AI suggestions does not auto-close the ticket."
+msgstr "客户补充信息后可重新分析。确认 AI 建议不会自动关闭工单。"
+
+msgid "Save changes"
+msgstr "保存修改"
+
+msgid "Confirm & Apply"
+msgstr "确认采纳"
+
+msgid "Reject"
+msgstr "驳回"
+
+msgid "Re-analyze"
+msgstr "重新分析"
+
+msgid "Confirming AI suggestions writes selected ticket fields only. Ticket status is not changed automatically. Auto-handle is suggestion/simulation only."
+msgstr "确认 AI 建议仅写回所选工单字段。工单状态不会自动变更。自动处理仅为建议/模拟。"
+
+msgid "Preview write-back to ticket"
+msgstr "预览写回工单的字段"
+
+msgid "Ticket type"
+msgstr "工单类型"
+
+msgid "Team / agent group"
+msgstr "团队 / 客服组"
+
+msgid "Assign agent"
+msgstr "分配客服"
+
+msgid "Confirm adoption"
+msgstr "确认采纳"
+
+msgid "Rejection reason"
+msgstr "驳回原因"
+
+msgid "Optional reason"
+msgstr "可选原因"
+
+msgid "Confirm reject"
+msgstr "确认驳回"
+
+msgid "Confirmed by"
+msgstr "确认人"
+
+msgid "Confirmed"
+msgstr "已确认"
+
+msgid "Rejected"
+msgstr "已驳回"
+
+msgid "AI analysis completed"
+msgstr "AI 分析完成"
+
+msgid "AI analysis updated"
+msgstr "AI 分析已更新"
+
+msgid "AI analysis confirmed"
+msgstr "AI 分析已确认"
+
+msgid "AI analysis rejected"
+msgstr "AI 分析已驳回"
+
+msgid "AI analysis failed"
+msgstr "AI 分析失败"
+
+msgid "Update failed"
+msgstr "更新失败"
+
+msgid "Confirm failed"
+msgstr "确认失败"
+
+msgid "Reject failed"
+msgstr "驳回失败"
+
+msgid "Simulation completed (no real side effects)"
+msgstr "模拟完成（无真实副作用）"
+
+msgid "Simulation failed"
+msgstr "模拟失败"
+
+msgid "Manual"
+msgstr "人工处理"
