@@ -47,6 +47,10 @@ def chat_completion(
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
+            # Cloudflare / bot management often blocks default Python-urllib UA
+            # with HTTP 403 error code 1010 (seen on OpenAI-compatible gateways).
+            "User-Agent": "Mozilla/5.0 (compatible; HelpdeskAIPlus/1.0)",
+            "Accept": "application/json",
         },
     )
     try:
