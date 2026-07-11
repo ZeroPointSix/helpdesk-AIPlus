@@ -6,7 +6,15 @@ import type {
 } from "@/types/ai";
 import { reloadTicket } from "@/composables/useTicket";
 import { createResource, toast } from "frappe-ui";
-import { computed, reactive, ref, watch } from "vue";
+import {
+  computed,
+  isRef,
+  reactive,
+  ref,
+  unref,
+  watch,
+  type MaybeRef,
+} from "vue";
 
 function emptyDraft(): AIDraft {
   return {
@@ -54,7 +62,10 @@ function parseMaybeJson<T>(value: unknown, fallback: T): T {
   return value as T;
 }
 
-export function useTicketAI(ticketId: string) {
+export function useTicketAI(ticketId: MaybeRef<string>) {
+  const ticketIdRef = isRef(ticketId) ? ticketId : ref(ticketId);
+  const currentTicketId = () => String(unref(ticketIdRef) || "");
+
   const draft = reactive<AIDraft>(emptyDraft());
   const editing = ref(false);
   const showConfirmPreview = ref(false);
@@ -69,11 +80,14 @@ export function useTicketAI(ticketId: string) {
 
   const analysisResource = createResource({
     url: "helpdesk.api.ai.get_latest_analysis",
-    params: { ticket: ticketId },
+    params: { ticket: currentTicketId() },
     auto: true,
     onSuccess(data: AIAnalysis | null) {
       if (data && !editing.value) {
         Object.assign(draft, analysisToDraft(data));
+      }
+      if (!data && !editing.value) {
+        Object.assign(draft, emptyDraft());
       }
     },
   });
@@ -81,20 +95,24 @@ export function useTicketAI(ticketId: string) {
   const analyzeResource = createResource({
     url: "helpdesk.api.ai.analyze_ticket",
     // Omit source so server uses HD AI Settings / site_config (default Mock).
-    makeParams: () => ({ ticket: ticketId }),
+    makeParams: () => ({ ticket: currentTicketId() }),
     onSuccess(data: AIAnalysis) {
       analysisResource.data = data;
       Object.assign(draft, analysisToDraft(data));
       editing.value = false;
       simulation.value = null;
-      toast.success(__("AI analysis completed"));
+      if (data?.status === "Failed") {
+        toast.error(data.error_message || __("AI analysis failed"));
+      } else {
+        toast.success(__("AI analysis completed"));
+      }
     },
     onError(error: any) {
       const msg =
-        error?.messages?.[0] ||
-        error?.message ||
-        __("AI analysis failed");
+        error?.messages?.[0] || error?.message || __("AI analysis failed");
       toast.error(msg);
+      // Best-effort refresh in case a Failed row was still written.
+      analysisResource.reload();
     },
   });
 
@@ -127,7 +145,7 @@ export function useTicketAI(ticketId: string) {
       Object.assign(draft, analysisToDraft(data.analysis));
       editing.value = false;
       showConfirmPreview.value = false;
-      reloadTicket(ticketId);
+      reloadTicket(currentTicketId());
       const warnings = data.warnings || [];
       if (warnings.length) {
         toast.success(
@@ -191,6 +209,8 @@ export function useTicketAI(ticketId: string) {
       Boolean(simulateResource.loading)
   );
 
+  const simulating = computed(() => Boolean(simulateResource.loading));
+
   const uiPhase = computed(() => {
     if (analyzeResource.loading) return "loading";
     if (analysisResource.loading && !analysis.value) return "loading";
@@ -247,6 +267,7 @@ export function useTicketAI(ticketId: string) {
   }
 
   function runAnalyze() {
+    if (!currentTicketId()) return;
     analyzeResource.submit();
   }
 
@@ -289,12 +310,19 @@ export function useTicketAI(ticketId: string) {
   }
 
   watch(
-    () => ticketId,
-    () => {
-      analysisResource.update({ params: { ticket: ticketId } });
-      analysisResource.reload();
+    ticketIdRef,
+    (id) => {
+      const ticket = String(id || "");
+      analysisResource.update({ params: { ticket } });
+      analysisResource.data = null;
+      Object.assign(draft, emptyDraft());
       editing.value = false;
       simulation.value = null;
+      showConfirmPreview.value = false;
+      rejectReason.value = "";
+      if (ticket) {
+        analysisResource.reload();
+      }
     }
   );
 
@@ -304,6 +332,7 @@ export function useTicketAI(ticketId: string) {
     draft,
     editing,
     loading,
+    simulating,
     uiPhase,
     isEditable,
     canEdit,

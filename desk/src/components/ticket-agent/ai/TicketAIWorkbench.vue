@@ -111,7 +111,7 @@
             :suggested-role="analysis?.suggested_role || draft.suggested_role"
             :suggested-team="analysis?.suggested_team || draft.suggested_team"
             :simulation="simulation"
-            :simulating="Boolean(loading && simulation === null)"
+            :simulating="simulating"
             :readonly="analysis?.status !== 'Completed'"
             @simulate="runSimulation"
           />
@@ -261,7 +261,7 @@ import Section from "@/components/Section.vue";
 import { useTicketAI } from "@/composables/useTicketAI";
 import { __ } from "@/translation";
 import { Button, LoadingIndicator, TextInput } from "frappe-ui";
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import LucideChevronRight from "~icons/lucide/chevron-right";
 import TicketAIEvidenceList from "./TicketAIEvidenceList.vue";
 import TicketAIFollowup from "./TicketAIFollowup.vue";
@@ -280,6 +280,7 @@ const {
   draft,
   editing,
   loading,
+  simulating,
   uiPhase,
   isEditable,
   canEdit,
@@ -301,7 +302,7 @@ const {
   confirmAdoption,
   rejectAnalysis,
   runSimulation,
-} = useTicketAI(props.ticketId);
+} = useTicketAI(toRef(props, "ticketId"));
 
 const confirmFieldOptions = [
   {

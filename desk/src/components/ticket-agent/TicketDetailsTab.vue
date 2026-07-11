@@ -39,9 +39,10 @@
     </div>
 
     <!-- AI Workbench (#5 / #6) -->
-    <div class="border-t shrink-0">
+    <div class="border-t shrink-0 max-h-[55vh] overflow-y-auto">
       <TicketAIWorkbench
         v-if="ticket?.value?.doc?.name"
+        :key="String(ticket.value.doc.name)"
         :ticket-id="String(ticket.value.doc.name)"
       />
     </div>

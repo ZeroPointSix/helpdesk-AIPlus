@@ -140,25 +140,35 @@ def run_analysis(ticket: str, source: str | None = None) -> dict[str, Any]:
         )
         analysis.error_message = None
         analysis.save(ignore_permissions=True)
+    except frappe.ValidationError:
+        # Permission / input errors should propagate without masking as Failed.
+        raise
+    except frappe.DoesNotExistError:
+        raise
+    except frappe.PermissionError:
+        raise
     except Exception as exc:
         frappe.log_error(
             title=f"HD AI Analysis failed for ticket {ticket}",
             message=frappe.get_traceback(),
         )
         try:
+            # Reload to drop any partial in-memory mutations, then persist Failed.
+            # Return the Failed record instead of throw-after-save so the request
+            # transaction does not roll back the failure snapshot (#3 失败态可回看).
             analysis.reload()
-            analysis.mark_failed(str(exc))
+            analysis.mark_failed(cstr_safe(exc)[:300])
             analysis.save(ignore_permissions=True)
+            return _serialize(analysis)
         except Exception:
             frappe.log_error(
                 title=f"HD AI Analysis failed to persist Failed state for {ticket}",
                 message=frappe.get_traceback(),
             )
-        # Re-raise a clean validation error for the API consumer.
-        frappe.throw(
-            _("AI analysis failed: {0}").format(cstr_safe(exc)[:300]),
-            title=_("Analysis Failed"),
-        )
+            frappe.throw(
+                _("AI analysis failed: {0}").format(cstr_safe(exc)[:300]),
+                title=_("Analysis Failed"),
+            )
 
     return _serialize(analysis)
 

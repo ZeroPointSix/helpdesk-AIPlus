@@ -88,6 +88,14 @@
                   "
                   class="!border-0"
                 />
+                <!-- AI Workbench (mobile) -->
+                <div class="border-t mt-2">
+                  <TicketAIWorkbench
+                    v-if="ticket.doc?.name"
+                    :key="String(ticket.doc.name)"
+                    :ticket-id="String(ticket.doc.name)"
+                  />
+                </div>
               </div>
 
               <!-- Rest Activities -->
@@ -205,6 +213,7 @@ import { TicketAgentActivities } from "@/components/ticket";
 
 import CustomActions from "@/components/CustomActions.vue";
 import AssignTo from "@/components/ticket-agent/AssignTo.vue";
+import TicketAIWorkbench from "@/components/ticket-agent/ai/TicketAIWorkbench.vue";
 import SetContactPhoneModal from "@/components/ticket/SetContactPhoneModal.vue";
 import TicketAgentDetails from "@/components/ticket/TicketAgentDetails.vue";
 import TicketAgentFields from "@/components/ticket/TicketAgentFields.vue";

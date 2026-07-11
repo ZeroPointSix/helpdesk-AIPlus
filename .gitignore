@@ -42,3 +42,9 @@ helpdesk/public/node_modules
 helpdesk/www/helpdesk/index.html
 desk/components.d.ts
 desk/stats.html
+
+# Local reference trees / scan dumps (do not ship with the app)
+exeample/
+scripts/vue_label_strings.json
+scripts/vue_script_label_strings.json
+scripts/zh_untranslated.json
