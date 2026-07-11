@@ -137,6 +137,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ---- Smoke build (linux/amd64, load locally) + content gate ----
+      # NOTE: use secret-files (name=path). The multiline form
+      #   secrets: |
+      #     id=apps_json,src=...
+      # is mis-parsed by docker/build-push-action as secret name "id",
+      # so /opt/frappe/apps.json stays empty and only frappe is baked.
       - name: Build smoke image (amd64, load)
         uses: docker/build-push-action@v6
         with:
@@ -150,8 +155,8 @@ jobs:
             FRAPPE_PATH=${{ env.FRAPPE_PATH }}
             FRAPPE_BRANCH=${{ needs.prepare.outputs.frappe_branch }}
             CACHE_BUST=${{ needs.prepare.outputs.cache_bust }}
-          secrets: |
-            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          secret-files: |
+            apps_json=${{ env.APPS_JSON_PATH }}
           cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
           cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
 
@@ -213,8 +218,8 @@ jobs:
             FRAPPE_PATH=${{ env.FRAPPE_PATH }}
             FRAPPE_BRANCH=${{ needs.prepare.outputs.frappe_branch }}
             CACHE_BUST=${{ needs.prepare.outputs.cache_bust }}
-          secrets: |
-            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          secret-files: |
+            apps_json=${{ env.APPS_JSON_PATH }}
           cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
           cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
 
