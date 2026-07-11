@@ -1,0 +1,329 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-07-11 16:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ticket_section",
+  "ticket",
+  "status",
+  "source",
+  "column_break_meta",
+  "analyzer",
+  "model_name",
+  "is_edited",
+  "result_section",
+  "category",
+  "mapped_ticket_type",
+  "priority",
+  "column_break_result",
+  "summary",
+  "confidence",
+  "assignment_section",
+  "suggested_role",
+  "suggested_team",
+  "column_break_assign",
+  "suggested_agent",
+  "auto_handleable",
+  "evidence_section",
+  "evidence",
+  "branch_section",
+  "auto_handle_plan",
+  "missing_info",
+  "handoff_reason",
+  "audit_section",
+  "original_result",
+  "confirmed_by",
+  "column_break_audit",
+  "confirmed_at",
+  "rejection_reason",
+  "error_section",
+  "error_message",
+  "raw_response"
+ ],
+ "fields": [
+  {
+   "fieldname": "ticket_section",
+   "fieldtype": "Section Break",
+   "label": "Ticket"
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Ticket",
+   "options": "HD Ticket",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nCompleted\nFailed\nConfirmed\nRejected",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Mock",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Source",
+   "options": "Mock\nLLM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "analyzer",
+   "fieldtype": "Data",
+   "label": "Analyzer"
+  },
+  {
+   "fieldname": "model_name",
+   "fieldtype": "Data",
+   "label": "Model Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_edited",
+   "fieldtype": "Check",
+   "label": "Is Edited",
+   "read_only": 1
+  },
+  {
+   "fieldname": "result_section",
+   "fieldtype": "Section Break",
+   "label": "Analysis Result"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Category"
+  },
+  {
+   "fieldname": "mapped_ticket_type",
+   "fieldtype": "Link",
+   "label": "Mapped Ticket Type",
+   "options": "HD Ticket Type"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "HD Ticket Priority"
+  },
+  {
+   "fieldname": "column_break_result",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "confidence",
+   "fieldtype": "Float",
+   "label": "Confidence",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "assignment_section",
+   "fieldtype": "Section Break",
+   "label": "Suggested Assignment"
+  },
+  {
+   "fieldname": "suggested_role",
+   "fieldtype": "Data",
+   "label": "Suggested Role"
+  },
+  {
+   "fieldname": "suggested_team",
+   "fieldtype": "Link",
+   "label": "Suggested Team",
+   "options": "HD Team"
+  },
+  {
+   "fieldname": "column_break_assign",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "suggested_agent",
+   "fieldtype": "Link",
+   "label": "Suggested Agent",
+   "options": "HD Agent"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_handleable",
+   "fieldtype": "Check",
+   "label": "Auto Handleable"
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence",
+   "fieldtype": "JSON",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "branch_section",
+   "fieldtype": "Section Break",
+   "label": "Branch Suggestions"
+  },
+  {
+   "fieldname": "auto_handle_plan",
+   "fieldtype": "JSON",
+   "label": "Auto Handle Plan"
+  },
+  {
+   "fieldname": "missing_info",
+   "fieldtype": "JSON",
+   "label": "Missing Info"
+  },
+  {
+   "fieldname": "handoff_reason",
+   "fieldtype": "Small Text",
+   "label": "Handoff Reason"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "audit_section",
+   "fieldtype": "Section Break",
+   "label": "Audit"
+  },
+  {
+   "fieldname": "original_result",
+   "fieldtype": "JSON",
+   "label": "Original Result",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_by",
+   "fieldtype": "Link",
+   "label": "Confirmed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_audit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "confirmed_at",
+   "fieldtype": "Datetime",
+   "label": "Confirmed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Errors & Diagnostics"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message"
+  },
+  {
+   "fieldname": "raw_response",
+   "fieldtype": "JSON",
+   "label": "Raw Response"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-07-11 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD AI Analysis",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Orange",
+   "title": "Pending"
+  },
+  {
+   "color": "Blue",
+   "title": "Completed"
+  },
+  {
+   "color": "Red",
+   "title": "Failed"
+  },
+  {
+   "color": "Green",
+   "title": "Confirmed"
+  },
+  {
+   "color": "Gray",
+   "title": "Rejected"
+  }
+ ],
+ "track_changes": 1
+}
