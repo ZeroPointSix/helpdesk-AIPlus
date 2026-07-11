@@ -4,62 +4,186 @@ on:
   push:
     branches:
       - main
+      - develop
     tags:
       - "*"
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  # Docker/GHCR repository names must be lowercase
+  REGISTRY: ghcr.io
+  # Resolved later to lowercase form of github.repository
+  IMAGE_NAME: ghcr.io/zeropointsix/helpdesk-aiplus
+
 jobs:
-  build:
-    name: Build
-
+  prepare:
+    name: Prepare metadata
     runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.meta.outputs.image_name }}
+      tags: ${{ steps.meta.outputs.tags }}
+      apps_json_base64: ${{ steps.meta.outputs.apps_json_base64 }}
+      frappe_branch: ${{ steps.meta.outputs.frappe_branch }}
+    steps:
+      - name: Compute image name, tags and apps.json
+        id: meta
+        run: |
+          set -euo pipefail
 
+          IMAGE_NAME="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          REF_TAG="${{ github.ref_name }}"
+          # Docker tags cannot contain "/"
+          REF_TAG="${REF_TAG//\//-}"
+
+          # Multiline tags for docker/metadata / imagetools
+          {
+            echo "${IMAGE_NAME}:${REF_TAG}"
+            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              echo "${IMAGE_NAME}:stable"
+            elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+              echo "${IMAGE_NAME}:latest"
+            fi
+          } > tags.txt
+
+          # Build this fork (zh localization) + telephony, not upstream frappe/helpdesk
+          APP_BRANCH="${{ github.ref_name }}"
+          APPS_JSON=$(jq -nc \
+            --arg helpdesk_url "https://github.com/${{ github.repository }}" \
+            --arg helpdesk_branch "${APP_BRANCH}" \
+            '[
+              {"url": "https://github.com/frappe/telephony", "branch": "develop"},
+              {"url": $helpdesk_url, "branch": $helpdesk_branch}
+            ]')
+          APPS_JSON_BASE64=$(printf '%s' "$APPS_JSON" | base64 -w 0)
+
+          {
+            echo "image_name=${IMAGE_NAME}"
+            echo "frappe_branch=version-15"
+            echo "apps_json_base64=${APPS_JSON_BASE64}"
+            echo "tags<<EOF"
+            cat tags.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Image: ${IMAGE_NAME}"
+          echo "Tags:"
+          cat tags.txt
+          echo "APPS_JSON: ${APPS_JSON}"
+
+  build:
+    name: Build (${{ matrix.platform }})
+    needs: prepare
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        arch: [amd64, arm64]
-
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
       - name: Checkout Entire Repository
         uses: actions/checkout@v4
+
+      - name: Prepare platform suffix
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Branch
-        run: |
-          export APPS_JSON='[{"url": "https://github.com/frappe/telephony","branch": "develop"},{"url": "https://github.com/frappe/helpdesk","branch": "main"}]'
-          echo "APPS_JSON_BASE64=$(echo $APPS_JSON | base64 -w 0)" >> $GITHUB_ENV
-          echo "FRAPPE_BRANCH=version-15" >> $GITHUB_ENV
-
-      - name: Set Image Tag
-        run: |
-          echo "IMAGE_TAG=stable" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v4
+      - name: Checkout frappe_docker
+        uses: actions/checkout@v4
         with:
           repository: frappe/frappe_docker
           path: builds
 
-      - name: Build and push
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          push: true
           context: builds
           file: builds/images/layered/Containerfile
-          tags: >
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }},
-            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+          platforms: ${{ matrix.platform }}
+          push: true
+          outputs: type=image,name=${{ needs.prepare.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
-            "FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}"
-            "APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}"
+            FRAPPE_BRANCH=${{ needs.prepare.outputs.frappe_branch }}
+            APPS_JSON_BASE64=${{ needs.prepare.outputs.apps_json_base64 }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: Merge multi-arch manifest
+    needs:
+      - prepare
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          set -euo pipefail
+          IMAGE_NAME="${{ needs.prepare.outputs.image_name }}"
+
+          # tags output is multiline
+          mapfile -t TAGS <<< "${{ needs.prepare.outputs.tags }}"
+
+          TAG_ARGS=()
+          for tag in "${TAGS[@]}"; do
+            [ -n "$tag" ] || continue
+            TAG_ARGS+=("-t" "$tag")
+          done
+
+          docker buildx imagetools create \
+            "${TAG_ARGS[@]}" \
+            $(printf "${IMAGE_NAME}@sha256:%s " *)
+
+      - name: Inspect image
+        run: |
+          IMAGE_NAME="${{ needs.prepare.outputs.image_name }}"
+          # Inspect first tag
+          FIRST_TAG=$(printf '%s\n' "${{ needs.prepare.outputs.tags }}" | head -n1)
+          docker buildx imagetools inspect "${FIRST_TAG}"
