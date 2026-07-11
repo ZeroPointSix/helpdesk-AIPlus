@@ -38,12 +38,14 @@
       </div>
     </div>
 
-    <!-- AI Workbench (#5 / #6) -->
+    <!-- AI Workbench (#5 / #6)
+         Template auto-unwraps inject/computed refs once — do NOT use ticket.value here.
+         Script setup still uses ticket.value.doc for DocumentResource access. -->
     <div class="border-t shrink-0 max-h-[55vh] overflow-y-auto">
       <TicketAIWorkbench
-        v-if="ticket?.value?.doc?.name"
-        :key="String(ticket.value.doc.name)"
-        :ticket-id="String(ticket.value.doc.name)"
+        v-if="ticket?.doc?.name"
+        :key="String(ticket.doc.name)"
+        :ticket-id="String(ticket.doc.name)"
       />
     </div>
 
