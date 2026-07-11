@@ -132,6 +132,17 @@ Replace the following parameters with your values:
 
 The script will set up a production-ready instance of Frappe Helpdesk with all the necessary configurations in about 5 minutes.
 
+#### This fork (`helpdesk-AIPlus`) image
+
+For **Simplified Chinese localization + AI workbench**, use the GHCR image built from **this** repository (not `ghcr.io/frappe/helpdesk`):
+
+| Branch | Image tags |
+|--------|------------|
+| `develop` (default) | `ghcr.io/zeropointsix/helpdesk-aiplus:develop`, `:latest` |
+| `main` | `ghcr.io/zeropointsix/helpdesk-aiplus:main`, `:stable` |
+
+There is **no `master` branch**. Image bake details, smoke checks, and easy-install env notes: [`docs/DEPLOY_IMAGE.md`](docs/DEPLOY_IMAGE.md).
+
 ## Development Setup
 
 ### Docker

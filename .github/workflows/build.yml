@@ -1,4 +1,13 @@
 name: Build Container Image
+
+# Bake telephony + this fork's helpdesk into a production image via
+# frappe/frappe_docker layered Containerfile.
+#
+# Critical: apps are passed as a BuildKit *secret* (id=apps_json), NOT as
+# APPS_JSON_BASE64 build-arg. The layered Containerfile no longer reads the
+# build-arg; using only the build-arg produced frappe-only images while CI
+# still reported success (see Issue #11).
+
 on:
   workflow_dispatch:
   push:
@@ -12,11 +21,18 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: build-image-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  # Docker/GHCR repository names must be lowercase
   REGISTRY: ghcr.io
+  BUILDER_DIR: builds
+  # Docker/GHCR repository names must be lowercase
   # Resolved later to lowercase form of github.repository
-  IMAGE_NAME: ghcr.io/zeropointsix/helpdesk-aiplus
+  FRAPPE_BRANCH: version-16
+  FRAPPE_IMAGE_PREFIX: frappe
+  FRAPPE_PATH: https://github.com/frappe/frappe
 
 jobs:
   prepare:
@@ -25,10 +41,11 @@ jobs:
     outputs:
       image_name: ${{ steps.meta.outputs.image_name }}
       tags: ${{ steps.meta.outputs.tags }}
-      apps_json_base64: ${{ steps.meta.outputs.apps_json_base64 }}
+      app_branch: ${{ steps.meta.outputs.app_branch }}
       frappe_branch: ${{ steps.meta.outputs.frappe_branch }}
+      cache_bust: ${{ steps.meta.outputs.cache_bust }}
     steps:
-      - name: Compute image name, tags and apps.json
+      - name: Compute image name, tags and app branch
         id: meta
         run: |
           set -euo pipefail
@@ -38,7 +55,6 @@ jobs:
           # Docker tags cannot contain "/"
           REF_TAG="${REF_TAG//\//-}"
 
-          # Multiline tags for docker/metadata / imagetools
           {
             echo "${IMAGE_NAME}:${REF_TAG}"
             if [ "${{ github.ref }}" = "refs/heads/main" ]; then
@@ -48,21 +64,13 @@ jobs:
             fi
           } > tags.txt
 
-          # Build this fork (zh localization) + telephony, not upstream frappe/helpdesk
-          APP_BRANCH="${{ github.ref_name }}"
-          APPS_JSON=$(jq -nc \
-            --arg helpdesk_url "https://github.com/${{ github.repository }}" \
-            --arg helpdesk_branch "${APP_BRANCH}" \
-            '[
-              {"url": "https://github.com/frappe/telephony", "branch": "develop"},
-              {"url": $helpdesk_url, "branch": $helpdesk_branch}
-            ]')
-          APPS_JSON_BASE64=$(printf '%s' "$APPS_JSON" | base64 -w 0)
-
           {
             echo "image_name=${IMAGE_NAME}"
-            echo "frappe_branch=version-15"
-            echo "apps_json_base64=${APPS_JSON_BASE64}"
+            echo "frappe_branch=${FRAPPE_BRANCH}"
+            # Install apps from the branch/tag that triggered this build
+            echo "app_branch=${{ github.ref_name }}"
+            # Secret mounts are not part of layer cache keys; bust when content changes
+            echo "cache_bust=${{ github.sha }}"
             echo "tags<<EOF"
             cat tags.txt
             echo "EOF"
@@ -71,26 +79,49 @@ jobs:
           echo "Image: ${IMAGE_NAME}"
           echo "Tags:"
           cat tags.txt
-          echo "APPS_JSON: ${APPS_JSON}"
+          echo "App branch: ${{ github.ref_name }}"
+          echo "Frappe branch: ${FRAPPE_BRANCH}"
 
   build:
-    name: Build (${{ matrix.platform }})
+    name: Build and verify
     needs: prepare
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
+    timeout-minutes: 120
+    env:
+      APPS_JSON_PATH: ${{ github.workspace }}/apps.build.json
+      SMOKE_IMAGE: local/helpdesk-aiplus:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+      CACHE_SCOPE: helpdesk-aiplus-${{ needs.prepare.outputs.frappe_branch }}
     steps:
-      - name: Checkout Entire Repository
+      - name: Checkout this repository
         uses: actions/checkout@v4
 
-      - name: Prepare platform suffix
+      - name: Checkout frappe_docker
+        uses: actions/checkout@v4
+        with:
+          repository: frappe/frappe_docker
+          path: ${{ env.BUILDER_DIR }}
+
+      - name: Create apps.json for this build
+        env:
+          APP_BRANCH: ${{ needs.prepare.outputs.app_branch }}
+          HELPDESK_URL: https://github.com/${{ github.repository }}
         run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          # Strip refs/heads/ or refs/tags/ if present (tags workflow)
+          BRANCH="${APP_BRANCH#refs/heads/}"
+          BRANCH="${BRANCH#refs/tags/}"
+
+          jq -nc \
+            --arg helpdesk_url "${HELPDESK_URL}" \
+            --arg helpdesk_branch "${BRANCH}" \
+            '[
+              {"url": "https://github.com/frappe/telephony", "branch": "develop"},
+              {"url": $helpdesk_url, "branch": $helpdesk_branch}
+            ]' > "${APPS_JSON_PATH}"
+
+          echo "apps.json:"
+          cat "${APPS_JSON_PATH}"
+          test -s "${APPS_JSON_PATH}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -105,85 +136,90 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout frappe_docker
-        uses: actions/checkout@v4
-        with:
-          repository: frappe/frappe_docker
-          path: builds
-
-      - name: Build and push by digest
-        id: build
+      # ---- Smoke build (linux/amd64, load locally) + content gate ----
+      - name: Build smoke image (amd64, load)
         uses: docker/build-push-action@v6
         with:
-          context: builds
-          file: builds/images/layered/Containerfile
-          platforms: ${{ matrix.platform }}
-          push: true
-          outputs: type=image,name=${{ needs.prepare.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
+          context: ${{ env.BUILDER_DIR }}
+          file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
+          platforms: linux/amd64
+          load: true
+          tags: ${{ env.SMOKE_IMAGE }}
           build-args: |
+            FRAPPE_IMAGE_PREFIX=${{ env.FRAPPE_IMAGE_PREFIX }}
+            FRAPPE_PATH=${{ env.FRAPPE_PATH }}
             FRAPPE_BRANCH=${{ needs.prepare.outputs.frappe_branch }}
-            APPS_JSON_BASE64=${{ needs.prepare.outputs.apps_json_base64 }}
+            CACHE_BUST=${{ needs.prepare.outputs.cache_bust }}
+          secrets: |
+            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
 
-      - name: Export digest
-        run: |
-          mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
-
-      - name: Upload digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-${{ env.PLATFORM_PAIR }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
-
-  merge:
-    name: Merge multi-arch manifest
-    needs:
-      - prepare
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download digests
-        uses: actions/download-artifact@v4
-        with:
-          path: /tmp/digests
-          pattern: digests-*
-          merge-multiple: true
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create manifest list and push
-        working-directory: /tmp/digests
+      - name: Smoke test image contents (apps + desk assets)
+        env:
+          SMOKE_IMAGE: ${{ env.SMOKE_IMAGE }}
         run: |
           set -euo pipefail
-          IMAGE_NAME="${{ needs.prepare.outputs.image_name }}"
+          docker run --rm --entrypoint bash "${SMOKE_IMAGE}" -lc '
+            set -euo pipefail
+            BENCH=/home/frappe/frappe-bench
+            echo "== apps =="
+            ls -la "${BENCH}/apps"
+            test -d "${BENCH}/apps/frappe"
+            test -d "${BENCH}/apps/helpdesk"
+            test -d "${BENCH}/apps/telephony"
+            echo "apps ok: frappe helpdesk telephony"
 
-          # tags output is multiline
-          mapfile -t TAGS <<< "${{ needs.prepare.outputs.tags }}"
+            echo "== import helpdesk =="
+            cd "${BENCH}"
+            # Prefer bench env python if present
+            if [ -x env/bin/python ]; then
+              ./env/bin/python -c "import helpdesk; print(helpdesk.__file__)"
+            else
+              python -c "import helpdesk; print(helpdesk.__file__)"
+            fi
 
-          TAG_ARGS=()
-          for tag in "${TAGS[@]}"; do
-            [ -n "$tag" ] || continue
-            TAG_ARGS+=("-t" "$tag")
-          done
+            echo "== baked assets =="
+            # layered image moves sites/assets -> /home/frappe/frappe-bench/assets
+            ls -la "${BENCH}/assets" || true
+            ls -la "${BENCH}/assets/helpdesk" || true
+            # desk SPA must exist so production frontend has no need for Node
+            if [ -e "${BENCH}/assets/helpdesk/desk/favicon.svg" ]; then
+              echo "desk favicon present"
+            elif [ -d "${BENCH}/apps/helpdesk/helpdesk/public/desk" ] && \
+                 [ "$(ls -A "${BENCH}/apps/helpdesk/helpdesk/public/desk" 2>/dev/null | head -1)" ]; then
+              echo "desk public assets present under app public (will be linked at entrypoint)"
+              ls "${BENCH}/apps/helpdesk/helpdesk/public/desk" | head
+            else
+              echo "ERROR: helpdesk desk SPA assets missing from image" >&2
+              echo "Checked: ${BENCH}/assets/helpdesk/desk and app public/desk" >&2
+              find "${BENCH}/apps/helpdesk" -maxdepth 4 -type d -name desk 2>/dev/null || true
+              find "${BENCH}/assets" -maxdepth 3 -type d 2>/dev/null | head -50 || true
+              exit 1
+            fi
+          '
 
-          docker buildx imagetools create \
-            "${TAG_ARGS[@]}" \
-            $(printf "${IMAGE_NAME}@sha256:%s " *)
+      # ---- Multi-arch push to GHCR ----
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.BUILDER_DIR }}
+          file: ${{ env.BUILDER_DIR }}/images/layered/Containerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ needs.prepare.outputs.tags }}
+          build-args: |
+            FRAPPE_IMAGE_PREFIX=${{ env.FRAPPE_IMAGE_PREFIX }}
+            FRAPPE_PATH=${{ env.FRAPPE_PATH }}
+            FRAPPE_BRANCH=${{ needs.prepare.outputs.frappe_branch }}
+            CACHE_BUST=${{ needs.prepare.outputs.cache_bust }}
+          secrets: |
+            id=apps_json,src=${{ env.APPS_JSON_PATH }}
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
 
-      - name: Inspect image
+      - name: Inspect published tags
         run: |
-          IMAGE_NAME="${{ needs.prepare.outputs.image_name }}"
-          # Inspect first tag
+          set -euo pipefail
           FIRST_TAG=$(printf '%s\n' "${{ needs.prepare.outputs.tags }}" | head -n1)
           docker buildx imagetools inspect "${FIRST_TAG}"
