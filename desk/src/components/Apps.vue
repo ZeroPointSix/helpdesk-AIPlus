@@ -15,7 +15,7 @@
       >
         <div class="flex gap-2">
           <AppsIcon />
-          <span class="whitespace-nowrap">Apps</span>
+          <span class="whitespace-nowrap">{{ __("Apps") }}</span>
         </div>
         <ChevronRight class="h-4 w-4 stroke-1.5" />
       </button>

@@ -16,7 +16,7 @@
             class="w-full"
             type="text"
             v-model="searchInput"
-            placeholder="Type emails"
+            :placeholder="__('Type emails')"
             @update:model-value="(val) => onSearchInputChange(val)"
           />
           <Button
@@ -30,7 +30,7 @@
               }
             "
           >
-            Add
+            {{ __("Add") }}
           </Button>
         </form>
         <div
@@ -67,9 +67,9 @@
           class="me-2"
           variant="solid"
           :loading="sentInvitesResource.loading"
-          >Send Invites
+          >{{ __("Send Invites") }}
         </Button>
-        <Button @click="removeAllEmailFromQueue"> Clear All </Button>
+        <Button @click="removeAllEmailFromQueue">{{ __("Clear All") }}</Button>
       </div>
     </template>
   </Dialog>
@@ -183,7 +183,7 @@ const sentInvitesResource = createResource({
       updateOnboardingStep("invite_agents");
     }
 
-    toast.success("Invites sent successfully!");
+    toast.success(__("Invites sent successfully!"));
 
     close();
   },

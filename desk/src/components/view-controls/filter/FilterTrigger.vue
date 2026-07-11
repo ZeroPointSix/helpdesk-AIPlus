@@ -41,6 +41,6 @@ interface E {
   (event: "clear"): void;
 }
 
-withDefaults(defineProps<P>(), { label: "Filter" });
+withDefaults(defineProps<P>(), { label: __('Filter') });
 defineEmits<E>();
 </script>

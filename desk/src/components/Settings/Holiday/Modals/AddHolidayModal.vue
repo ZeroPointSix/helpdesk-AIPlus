@@ -8,7 +8,7 @@
     <template #default>
       <div class="flex flex-col gap-4 mt-4">
         <div class="flex flex-col gap-1.5">
-          <FormLabel label="Date" required />
+          <FormLabel :label="__('Date')" required />
           <DatePicker
             :model-value="dayjs(dialog.holiday_date).format('YYYY-MM-DD')"
             @update:model-value="
@@ -19,7 +19,7 @@
             "
             :format="getDateFormat()"
             variant="subtle"
-            placeholder="Date"
+            :placeholder="__('Date')"
             class="w-full"
             id="holiday_date"
             required
@@ -31,8 +31,8 @@
             :type="'textarea'"
             size="sm"
             variant="subtle"
-            placeholder="National holiday, etc."
-            label="Description"
+            :placeholder="__('National holiday, etc.')"
+            :label="__('Description')"
             v-model="dialog.description"
             required
             @change="errors.description = ''"
@@ -46,13 +46,13 @@
         <Button
           variant="subtle"
           theme="gray"
-          label="Cancel"
+          :label="__('Cancel')"
           @click="dialog.show = false"
         />
         <Button
           variant="solid"
           icon-left="lucide-plus"
-          label="Add Holiday"
+          :label="__('Add Holiday')"
           @click="onSave"
         />
       </div>
@@ -136,7 +136,7 @@ const onSave = () => {
       getFormattedDate(holidayExists.holiday_date) !==
         getFormattedDate(dialog.value.editing.holiday_date)
     ) {
-      toast.error("Holiday already exists");
+      toast.error(__('Holiday already exists'));
       return;
     }
     const holidayIndex = holidayData.value.holidays.indexOf(
@@ -153,7 +153,7 @@ const onSave = () => {
         getFormattedDate(dialog.value.holiday_date)
     );
     if (index !== -1) {
-      toast.error("Holiday already exists");
+      toast.error(__('Holiday already exists'));
       return;
     }
     holidayData.value.holidays.push({

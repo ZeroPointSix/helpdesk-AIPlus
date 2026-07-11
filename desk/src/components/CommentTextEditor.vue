@@ -69,7 +69,7 @@
             </div>
             <div class="flex items-center justify-end gap-x-2 w-[40%]">
               <Button
-                label="Discard"
+                :label="__('Discard')"
                 @click="
                   () => {
                     newComment = '';

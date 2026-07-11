@@ -53,7 +53,7 @@
                 "
                 :value="query"
                 autocomplete="off"
-                placeholder="Search"
+                :placeholder="__('Search')"
               />
               <button
                 class="absolute inset-y-0 end-3 top-px flex items-center"

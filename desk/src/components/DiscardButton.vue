@@ -34,7 +34,7 @@ function handleDiscard() {
     },
     actions: [
       {
-        label: "Delete",
+        label: __('Delete'),
         theme: "red",
         iconLeft: "trash-2",
         variant: "solid",

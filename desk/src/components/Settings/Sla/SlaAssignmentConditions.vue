@@ -55,13 +55,13 @@ const getConjunction = () => {
 
 const dropdownOptions = [
   {
-    label: "Add condition",
+    label: __('Add condition'),
     onClick: () => {
       addCondition();
     },
   },
   {
-    label: "Add condition group",
+    label: __('Add condition group'),
     onClick: () => {
       const conjunction = getConjunction();
       props.conditions.push(conjunction, [[]]);

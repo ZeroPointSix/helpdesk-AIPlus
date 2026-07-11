@@ -2,7 +2,9 @@
   <div class="p-5 pb-10 px-10 w-full overflow-scroll items-center relative">
     <LayoutHeader>
       <template #left-header>
-        <div class="text-lg font-medium text-ink-gray-9">Knowledge Base</div>
+        <div class="text-lg font-medium text-ink-gray-9">
+          {{ __("Knowledge Base") }}
+        </div>
       </template>
     </LayoutHeader>
     <div
@@ -13,7 +15,7 @@
           'max-w-[310px] md:max-w-[856px] !top-1 md:min-w-[856px]',
         ]"
         v-model="query"
-        placeholder="Ask a question..."
+        :placeholder="__('Ask a question...')"
         size="md"
         :autofocus="true"
       />

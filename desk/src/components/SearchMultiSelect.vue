@@ -224,7 +224,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: "Select options...",
-  label: "Options",
+  label: __('Options'),
   selectionText: "items",
   options: () => [],
 });

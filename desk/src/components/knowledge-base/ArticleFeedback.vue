@@ -15,7 +15,7 @@
             {{ __("If your issue isn't resolved, raise a support ticket") }}
           </span>
           <router-link :to="{ name: 'TicketNew' }">
-            <p class="underline font-base text-sm">here</p>
+            <p class="underline font-base text-sm">{{ __("here") }}</p>
           </router-link>
         </div>
       </div>

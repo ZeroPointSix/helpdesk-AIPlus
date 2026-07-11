@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:open="showSubjectDialog" title="Rename Subject">
+  <Dialog v-model:open="showSubjectDialog" :title="__('Rename Subject')">
     <template #default>
       <div class="flex flex-col flex-1 gap-3">
         <FormControl

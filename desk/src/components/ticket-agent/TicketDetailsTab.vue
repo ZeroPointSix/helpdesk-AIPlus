@@ -45,7 +45,7 @@
     >
       <!-- Ticket Info (custom fields) -->
       <div v-if="Boolean(customFields.length)">
-        <Section label="Ticket Info" v-model:opened="openedSections.ticketInfo">
+        <Section :label="__('Ticket Info')" v-model:opened="openedSections.ticketInfo">
           <template #header="{ opened, toggle }">
             <div
               class="flex gap-2.5 items-center justify-between sticky top-0 bg-surface-white z-10 px-4 py-4 cursor-pointer"
@@ -257,7 +257,7 @@ const sections = computed(() => {
   if (recentTickets.length) {
     _sections.push({
       key: "recentTickets" as const,
-      label: "Recent Tickets",
+      label: __('Recent Tickets'),
       tooltipMessage: "Tickets recently raised by this contact/customer",
       hideLabel: false,
       tickets: recentTickets,
@@ -266,7 +266,7 @@ const sections = computed(() => {
   if (similarTickets.length) {
     _sections.push({
       key: "similarTickets" as const,
-      label: "Similar Tickets",
+      label: __('Similar Tickets'),
       tooltipMessage: "Tickets with similar queries",
       hideLabel: false,
       tickets: similarTickets,

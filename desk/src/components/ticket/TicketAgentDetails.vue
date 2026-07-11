@@ -83,7 +83,7 @@ const firstResponseBadge = computed(() => {
     };
   } else {
     firstResponse = {
-      label: "Failed",
+      label: __('Failed'),
       color: "red",
       date: props.ticket.response_by,
     };
@@ -131,7 +131,7 @@ const resolutionBadge = computed(() => {
     };
   } else {
     resolution = {
-      label: "Failed",
+      label: __('Failed'),
       color: "red",
       date: props.ticket.resolution_by,
     };
@@ -151,19 +151,19 @@ function getCalculatedResolution() {
 
 const sections = computed(() => [
   {
-    label: "First Response",
+    label: __('First Response'),
     tooltipValue: dateFormat(firstResponseBadge.value.date, dateTooltipFormat),
     badgeText: firstResponseBadge.value.label,
     badgeColor: firstResponseBadge.value.color,
   },
   {
-    label: "Resolution",
+    label: __('Resolution'),
     tooltipValue: dateFormat(resolutionBadge.value.date, dateTooltipFormat),
     badgeText: resolutionBadge.value.label,
     badgeColor: resolutionBadge.value.color,
   },
   {
-    label: "Source",
+    label: __('Source'),
     value: props.ticket.via_customer_portal ? "Portal" : "Mail",
   },
 ]);

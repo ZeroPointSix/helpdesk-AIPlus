@@ -103,7 +103,7 @@ const priorityOptions = inject<Array<any>>("priorityOptions");
 
 const dropdownOptions = [
   {
-    label: "Edit",
+    label: __('Edit'),
     onClick: () => editItem(),
     icon: "lucide-edit",
   },

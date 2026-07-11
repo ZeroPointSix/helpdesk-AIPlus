@@ -45,7 +45,7 @@
             v-if="item.is_standard"
             class="ms-1 flex-shrink-0"
             size="sm"
-            label="Standard"
+            :label="__('Standard')"
           />
         </div>
       </template>

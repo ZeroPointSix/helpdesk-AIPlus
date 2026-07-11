@@ -44,7 +44,7 @@
           @success="
             (f: File) => $emit('update:attachments', [...attachments, f])
           "
-          @failure="() => toast.error('Error uploading file')"
+          @failure="() => toast.error(__('Error uploading file'))"
         >
           <template #default="{ openFileSelector }">
             <Button theme="gray" variant="ghost" @click="openFileSelector()">

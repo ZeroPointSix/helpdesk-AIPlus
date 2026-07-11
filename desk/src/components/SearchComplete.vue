@@ -1,6 +1,6 @@
 <template>
   <Autocomplete
-    placeholder="Select an option"
+    :placeholder="__('Select an option')"
     :options="options"
     :value="selection"
     @update:query="(q) => onUpdateQuery(q)"

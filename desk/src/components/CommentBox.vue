@@ -67,7 +67,7 @@
                 variant="solid"
               />
             </div>
-            <Button label="Discard" @click="handleDiscard" />
+            <Button :label="__('Discard')" @click="handleDiscard" />
           </div>
         </template>
       </TextEditor>
@@ -208,7 +208,7 @@ const emojiList = ["👍", "👎", "❤️", "🎉", "👀", "✅"];
 
 const dropdownOptions = computed(() => [
   {
-    label: "Edit",
+    label: __('Edit'),
     onClick: () => handleEditMode(),
     icon: "lucide-edit-2",
     condition: () => !isTicketMergedComment.value,

@@ -420,7 +420,7 @@ async function makeOutgoingCall(number) {
   } else {
     onCallFailed && onCallFailed();
     log.value = "Unable to make call.";
-    toast.error("Unable to make call.");
+    toast.error(__('Unable to make call.'));
   }
 }
 

@@ -11,8 +11,8 @@
             :type="'select'"
             size="sm"
             variant="subtle"
-            placeholder="Select Workday"
-            label="Workday"
+            :placeholder="__('Select Workday')"
+            :label="__('Workday')"
             v-model="workDayData.workday"
             :options="[
               {
@@ -55,8 +55,8 @@
             :type="'time'"
             size="sm"
             variant="subtle"
-            placeholder="Start Time"
-            label="Start Time"
+            :placeholder="__('Start Time')"
+            :label="__('Start Time')"
             v-model="workDayData.start_time"
             :class="{ 'border-outline-red-3': errors.start_time }"
             @blur="validateField('start_time')"
@@ -69,8 +69,8 @@
             :type="'time'"
             size="sm"
             variant="subtle"
-            placeholder="End Time"
-            label="End Time"
+            :placeholder="__('End Time')"
+            :label="__('End Time')"
             v-model="workDayData.end_time"
             :class="{ 'border-outline-red-3': errors.end_time }"
             @blur="validateTimeRange"
@@ -101,9 +101,9 @@
             variant="subtle"
             theme="gray"
             @click="dialog.show = false"
-            label="Cancel"
+            :label="__('Cancel')"
           />
-          <Button variant="solid" @click="onSave" label="Save" />
+          <Button variant="solid" @click="onSave" :label="__('Save')" />
         </div>
       </div>
     </template>

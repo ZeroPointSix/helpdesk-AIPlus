@@ -128,11 +128,11 @@ const { getUser } = useUserStore();
 
 const ticketRoutingOptions = [
   {
-    label: "Auto-rotate",
+    label: __('Auto-rotate'),
     value: "Round Robin",
   },
   {
-    label: "Assign by workload",
+    label: __('Assign by workload'),
     value: "Load Balancing",
   },
 ];

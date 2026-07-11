@@ -81,11 +81,11 @@ const component = computed(() => {
     return h(Autocomplete, {
       options: [
         {
-          label: "Yes",
+          label: __('Yes'),
           value: 1,
         },
         {
-          label: "No",
+          label: __('No'),
           value: 0,
         },
       ],

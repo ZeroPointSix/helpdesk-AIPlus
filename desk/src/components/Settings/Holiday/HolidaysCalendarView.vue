@@ -47,7 +47,7 @@
           :disabled="visibleMonths === 'first-half'"
           @click="visibleMonths = 'first-half'"
         />
-        <Button variant="ghost" label="Today" @click="goToToday()" />
+        <Button variant="ghost" :label="__('Today')" @click="goToToday()" />
         <Button
           variant="ghost"
           icon="lucide-chevron-right"

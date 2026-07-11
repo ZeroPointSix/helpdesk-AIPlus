@@ -27,7 +27,7 @@
           :model-value="fieldCriteriaState.display.value"
           @update:model-value="handleCriteriaSelection($event, 'display')"
           :multiple="true"
-          placeholder="Select Child Field values"
+          :placeholder="__('Select Child Field values')"
           placement="top"
         />
       </div>
@@ -53,7 +53,7 @@
           :model-value="fieldCriteriaState.mandatory.value"
           @update:model-value="handleCriteriaSelection($event, 'mandatory')"
           :multiple="true"
-          placeholder="Select Child Field values"
+          :placeholder="__('Select Child Field values')"
           placement="top"
         />
       </div>
@@ -89,7 +89,7 @@ const selections = computed(() => {
 });
 
 const fieldCriteriaOptions = computed(() => {
-  const _options = [{ label: "Any", value: "Any" }];
+  const _options = [{ label: __('Any'), value: "Any" }];
   props.parentFieldValues.forEach((value) => {
     if (!_options.some((o) => o.value === value)) {
       _options.push({ label: value, value });
@@ -105,13 +105,13 @@ function handleCriteriaSelection(
   const _values = values.map((v) => v.value);
   fieldCriteriaState.value[stateKey].value = values;
   if (_values.length === 0) {
-    fieldCriteriaState.value[stateKey].value = [{ label: "Any", value: "Any" }];
+    fieldCriteriaState.value[stateKey].value = [{ label: __('Any'), value: "Any" }];
   } else if (_values[0] === "Any" && _values.length > 1) {
     fieldCriteriaState.value[stateKey].value = _values
       .filter((value) => value !== "Any")
       .map((value) => ({ label: value, value }));
   } else if (_values.at(-1) === "Any" && _values.length > 1) {
-    fieldCriteriaState.value[stateKey].value = [{ label: "Any", value: "Any" }];
+    fieldCriteriaState.value[stateKey].value = [{ label: __('Any'), value: "Any" }];
   }
 }
 </script>

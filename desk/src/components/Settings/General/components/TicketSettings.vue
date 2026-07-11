@@ -174,7 +174,7 @@
           <div class="flex flex-col gap-1.5">
             <FormControl
               :label="__('Auto-close after (Days)')"
-              placeholder="e.g. 30"
+              :placeholder="__('e.g. 30')"
               v-model="settingsData.autoCloseAfterDays"
               type="number"
               :debounce="300"
@@ -215,7 +215,7 @@
             v-if="settingsData.enableOutsideHoursBanner"
             variant="subtle"
             size="sm"
-            placeholder="Enter Notification Message"
+            :placeholder="__('Enter Notification Message')"
             :required="true"
             v-model="settingsData.outsideWorkingHoursBannerMessage"
           />

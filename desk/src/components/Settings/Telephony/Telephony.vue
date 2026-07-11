@@ -204,8 +204,8 @@ const twilioAppsResource = createResource({
 });
 
 const telephonyProviders = [
-  { label: "Twilio", value: "Twilio" },
-  { label: "Exotel", value: "Exotel" },
+  { label: __('Twilio'), value: "Twilio" },
+  { label: __('Exotel'), value: "Exotel" },
 ];
 
 async function save() {

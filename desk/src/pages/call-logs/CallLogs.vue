@@ -2,11 +2,11 @@
   <div class="flex flex-col">
     <LayoutHeader>
       <template #left-header>
-        <div class="text-lg font-medium text-ink-gray-9">Call Logs</div>
+        <div class="text-lg font-medium text-ink-gray-9">{{ __("Call Logs") }}</div>
       </template>
       <template #right-header>
         <Button
-          label="New Call Log"
+          :label="__('New Call Log')"
           theme="gray"
           variant="solid"
           @click="newCallLog"

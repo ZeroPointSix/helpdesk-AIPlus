@@ -20,7 +20,7 @@
             type="text"
             :label="__('Name')"
             :required="true"
-            placeholder="Frappe"
+            :placeholder="__('Frappe')"
             v-model="state.name"
           />
 
@@ -34,7 +34,7 @@
             />
             <Link
               :label="__('Country')"
-              placeholder="India"
+              :placeholder="__('India')"
               doctype="Country"
               v-model="state.country"
             >
@@ -48,7 +48,7 @@
             class="[&_p]:text-p-xs"
             type="text"
             :label="__('Domain')"
-            placeholder="frappe.io"
+            :placeholder="__('frappe.io')"
             v-model="state.domain"
           >
             <template #prefix>
@@ -68,14 +68,14 @@
               class="[&_p]:text-p-xs"
               type="text"
               :label="__('First Name')"
-              placeholder="John"
+              :placeholder="__('John')"
               v-model="primaryContact.firstName"
             />
             <FormControl
               class="[&_p]:text-p-xs"
               type="text"
               :label="__('Last Name')"
-              placeholder="Doe"
+              :placeholder="__('Doe')"
               v-model="primaryContact.lastName"
             />
           </div>

@@ -43,7 +43,7 @@
           </button>
         </div>
       </div>
-      <div class="text-xs text-ink-gray-5 mt-1">Hrs</div>
+      <div class="text-xs text-ink-gray-5 mt-1">{{ __("Hrs") }}</div>
     </div>
     <div
       v-if="displayOptions.minutes"
@@ -87,7 +87,7 @@
           </button>
         </div>
       </div>
-      <div class="text-xs text-ink-gray-5 mt-1">Min</div>
+      <div class="text-xs text-ink-gray-5 mt-1">{{ __("Min") }}</div>
     </div>
     <div
       v-if="displayOptions.seconds"
@@ -131,7 +131,7 @@
           </button>
         </div>
       </div>
-      <div class="text-xs text-ink-gray-5 mt-1">Sec</div>
+      <div class="text-xs text-ink-gray-5 mt-1">{{ __("Sec") }}</div>
     </div>
   </div>
 </template>
