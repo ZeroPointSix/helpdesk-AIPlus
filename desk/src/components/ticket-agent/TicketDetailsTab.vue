@@ -38,6 +38,14 @@
       </div>
     </div>
 
+    <!-- AI Workbench (#5 / #6) -->
+    <div class="border-t shrink-0">
+      <TicketAIWorkbench
+        v-if="ticket?.value?.doc?.name"
+        :ticket-id="String(ticket.value.doc.name)"
+      />
+    </div>
+
     <!-- Scrollable sections: Ticket Info + Recent / Similar Tickets -->
     <div
       class="border-t flex-1 min-h-0 overflow-y-auto divide-y-[1px]"
@@ -161,6 +169,7 @@ import LucideChevronRight from "~icons/lucide/chevron-right";
 import Section from "../Section.vue";
 import TicketField from "../TicketField.vue";
 import AssignTo from "./AssignTo.vue";
+import TicketAIWorkbench from "./ai/TicketAIWorkbench.vue";
 import TicketContact from "./TicketContact.vue";
 
 const ticket = inject(TicketSymbol)!;
