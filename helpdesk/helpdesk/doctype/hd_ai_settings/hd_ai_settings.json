@@ -1,0 +1,138 @@
+{
+ "actions": [],
+ "creation": "2026-07-11 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "mode",
+  "column_break_basic",
+  "fallback_to_mock",
+  "confidence_threshold",
+  "provider_section",
+  "provider",
+  "model",
+  "column_break_provider",
+  "base_url",
+  "timeout_seconds",
+  "secrets_section",
+  "api_key",
+  "help_section",
+  "help_html"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "description": "Master switch. When disabled, analysis always uses Mock.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "Mock",
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Mode",
+   "options": "Mock\nLLM"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "If LLM fails or is misconfigured, transparently fall back to Mock and mark source/analyzer.",
+   "fieldname": "fallback_to_mock",
+   "fieldtype": "Check",
+   "label": "Fallback to Mock"
+  },
+  {
+   "default": "0.70",
+   "fieldname": "confidence_threshold",
+   "fieldtype": "Float",
+   "label": "Confidence Threshold",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "provider_section",
+   "fieldtype": "Section Break",
+   "label": "Provider"
+  },
+  {
+   "default": "openai_compatible",
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "Provider",
+   "options": "openai_compatible"
+  },
+  {
+   "default": "gpt-4.1-mini",
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "column_break_provider",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "https://api.openai.com/v1",
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "label": "Base URL"
+  },
+  {
+   "default": "30",
+   "fieldname": "timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Timeout (seconds)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "secrets_section",
+   "fieldtype": "Section Break",
+   "label": "Secrets"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "help_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<p>Default mode is <b>Mock</b> (no API key required). LLM mode uses an OpenAI-compatible Chat Completions endpoint. API keys must never be committed to git or returned to the desk UI via analysis APIs. Ticket content may be sent to the configured provider when LLM mode is used.</p>"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-11 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD AI Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
